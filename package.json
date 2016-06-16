@@ -1,0 +1,37 @@
+{
+  "name": "silktouch",
+  "version": "0.1.0",
+  "description": "A small library for using touch event in mobile web apps",
+  "main": "silktouch.js",
+  "scripts": {
+    "compile": "compile silktouch.js silktouch.min.js",
+    "build": "node build silktouch.dev.js > silktouch.js",
+    "test": "mocha test/test.js && mocha-phantomjs test/test.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/knowledgecode/silktouch.git"
+  },
+  "keywords": [
+    "silk",
+    "touch",
+    "tap",
+    "click",
+    "delay",
+    "event",
+    "mobile"
+  ],
+  "author": "KNOWLEDGECODE",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/knowledgecode/silktouch/issues"
+  },
+  "homepage": "https://github.com/knowledgecode/silktouch",
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "jsdom": "^9.2.1",
+    "mocha": "^2.5.3",
+    "mocha-phantomjs": "^4.0.2"
+  }
+}
+
