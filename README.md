@@ -1,10 +1,10 @@
 # SilkTouch
 [![Circle CI](https://circleci.com/gh/knowledgecode/silktouch.svg?style=shield)](https://circleci.com/gh/knowledgecode/silktouch)  
 
-SilkTouch is a small library for using `touch` event in mobile web apps.
+SilkTouch is a small library for handling `touch` event in mobile web apps.
 
 ## WHY
-As you know, in mobile browser, Android Browser or iOS Safari, `click` event is fired with 300ms delay. Since it often frustrates users, the apps should respond quickly to their tap operations.
+As you may know, in mobile browser, Android Browser or iOS Safari, `click` event is fired with 300ms delay. Since it often frustrates users, the apps should respond quickly to their tap operations.
 
 ## Features
 - Easy to use
@@ -57,7 +57,7 @@ silktouch.on('green', '#block', function () {
 ## API
 ### *on(name, selector, handler)*
 - {string} **name** - A unique event name
-- {string} **selector** - A selector which you want to match.
+- {string} **selector** - A selector you want to match.
 - {Function} **handler** - An event listener
 
 The `on` method registers a new `touch` event, and returns the `SilkTouch` object.
@@ -78,13 +78,13 @@ silktouch
 
 ### *one(name, selector, handler)*
 - {string} **name** - A unique event name
-- {string} **selector** - A selector which you want to match.
-- {Function} **handler** - An event listener, which is fired only once.
+- {string} **selector** - A selector you want to match.
+- {Function} **handler** - An event listener that is fired only once.
 
-The `one` method registers a new `touch` event which is fired **only once**, and returns the `SilkTouch` object.
+The `one` method registers a new `touch` event that is fired **only once**, and returns the `SilkTouch` object.
 
 ### *off([name])*
-- {string} **[name]** - An event name which want to delete from the registered events. Omitting it is equivalent to delete all the events.
+- {string} **[name]** - An event name that want to delete from the registered events. Omitting it is equivalent to delete all the events.
 
 The `off` method deletes from the registered events, and returns the `SilkTouch` object.
 
@@ -96,7 +96,7 @@ silktouch.off();
 ```
 
 ### *suspend([name])*
-- {string} **[name]** - An event name which want to suspend. Omitting it is equivalent to suspend all the events.
+- {string} **[name]** - An event name that want to suspend. Omitting it is equivalent to suspend all the events.
 
 The `suspend` method suspends one or all of the registed events, and returns the `SilkTouch` object. The events won't be fired until it's called the `resume` method.
 
@@ -108,7 +108,7 @@ silktouch.suspend();
 ```
 
 ### *resume([name])*
-- {string} **[name]** - An event name which want to resume. Omitting it is equivalent to resume all the events.
+- {string} **[name]** - An event name that want to resume. Omitting it is equivalent to resume all the events.
 
 The `resume` method resumes one or all of the suspended events, and returns the `SilkTouch` object.
 
