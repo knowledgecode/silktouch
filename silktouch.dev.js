@@ -13,65 +13,78 @@
         };
     }());
 
-    var silktouch = {}, handlers = {}, suspenders = [], bubbles;
+    var silktouch = {}, handlers = {}, suspenders = [], candidates = [];
 
     var SilkTouchEvent = function (evt) {
         this.originalEvent = evt;
+        this.bubbles = true;
     };
 
     SilkTouchEvent.prototype.preventDefault = function () {
         this.originalEvent.preventDefault();
     };
     SilkTouchEvent.prototype.stopPropagation = function () {
-        bubbles = false;
+        this.bubbles = false;
+    };
+
+    var elect = function () {
+        return Object.keys(handlers).filter(function (n) {
+            return !~suspenders.indexOf(n);
+        });
     };
 
     var listener = function (evt) {
-        var i, name, ste, target = evt.target,
-            candidates = Object.keys(handlers).filter(function (n) {
-                return !~suspenders.indexOf(n);
-            });
+        var i, name, ste, target = evt.target, cand = candidates.slice();
 
-        if (candidates.length) {
-            ste = new SilkTouchEvent(evt);
-            bubbles = true;
-        }
         while (target.parentNode) {
             i = 0;
-            while (candidates.length > i) {
-                name = candidates[i];
+            while (cand.length > i) {
+                name = cand[i];
                 if (matches(target, handlers[name].selector)) {
-                    candidates.splice(i, 1);
+                    cand.splice(i, 1);
+                    ste = ste || new SilkTouchEvent(evt);
                     handlers[name].handler.call(target, ste);
                 } else {
                     i++;
                 }
             }
-            if (!candidates.length || !bubbles) {
+            if (!cand.length || ste && !ste.bubbles) {
                 break;
             }
             target = target.parentNode;
         }
     };
 
-    var sx, sy;
+    var sx, sy, trgt;
 
     if ('ontouchstart' in global) {
         document.addEventListener('touchstart', function (evt) {
             sx = evt.changedTouches[0].pageX;
             sy = evt.changedTouches[0].pageY;
-        }, false);
+        }, { capture: true, passive: true });
         document.addEventListener('touchend', function (evt) {
             var ex = evt.changedTouches[0].pageX,
                 ey = evt.changedTouches[0].pageY;
 
-            if (Math.abs(ex - sx) > 10 || Math.abs(ey - sy) > 10) {
+            trgt = undefined;
+            if (Math.abs(ex - sx) > 4 || Math.abs(ey - sy) > 4) {
+                evt.preventDefault();
                 return;
             }
             listener(evt);
-        }, false);
+            trgt = evt.target;
+        }, true);
+        document.addEventListener('touchcancel', function () {
+            trgt = undefined;
+        }, true);
+        document.addEventListener('click', function (evt) {
+            if (evt.target !== trgt) {
+                evt.preventDefault();
+            }
+            trgt = undefined;
+        }, true);
     } else {
-        document.addEventListener('click', listener, false);
+        document.addEventListener('click', listener, true);
     }
 
     /**
@@ -84,6 +97,7 @@
     silktouch.on = function (name, selector, handler) {
         if (!handlers[name]) {
             handlers[name] = { selector: selector, handler: handler };
+            candidates = elect();
         }
         return this;
     };
@@ -94,21 +108,14 @@
      * @returns {Object} silktouch
      */
     silktouch.off = function (name) {
-        var index;
-
         if (arguments.length) {
             if (handlers[name]) {
                 delete handlers[name];
             }
-            index = suspenders.indexOf(name);
-            if (~index) {
-                suspenders.splice(index, 1);
-            }
         } else {
             handlers = {};
-            suspenders.length = 0;
         }
-        return this;
+        return silktouch.resume(name);
     };
 
     /**
@@ -131,7 +138,7 @@
      * @returns {Object} silktouch
      */
     silktouch.suspend = function (name) {
-        if (arguments.length) {
+        if (name) {
             if (handlers[name] && !~suspenders.indexOf(name)) {
                 suspenders.push(name);
             }
@@ -140,6 +147,7 @@
                 silktouch.suspend(nm);
             });
         }
+        candidates = elect();
         return this;
     };
 
@@ -151,7 +159,7 @@
     silktouch.resume = function (name) {
         var index;
 
-        if (arguments.length) {
+        if (name) {
             index = suspenders.indexOf(name);
             if (~index) {
                 suspenders.splice(index, 1);
@@ -159,6 +167,7 @@
         } else {
             suspenders.length = 0;
         }
+        candidates = elect();
         return this;
     };
 
