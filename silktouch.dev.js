@@ -55,34 +55,49 @@
         }
     };
 
-    var sx, sy, trgt;
+    var style, meta, sx, sy, trgt;
 
     if ('ontouchstart' in global) {
-        document.addEventListener('touchstart', function (evt) {
-            sx = evt.changedTouches[0].pageX;
-            sy = evt.changedTouches[0].pageY;
-        }, { capture: true, passive: true });
-        document.addEventListener('touchend', function (evt) {
-            var ex = evt.changedTouches[0].pageX,
-                ey = evt.changedTouches[0].pageY;
+        if (!document.querySelector('meta[name="viewport"]')) {
+            meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1';
+            document.head.appendChild(meta);
+        }
+        style = document.documentElement.style;
+        if ('touch-action' in style) {
+            style.touchAction = 'manipulation';
+            document.addEventListener('click', listener, true);
+        } else {
+            document.addEventListener('touchstart', function (evt) {
+                sx = evt.changedTouches[0].pageX;
+                sy = evt.changedTouches[0].pageY;
+            }, {
+                capture: true,
+                passive: true
+            });
+            document.addEventListener('touchend', function (evt) {
+                var ex = evt.changedTouches[0].pageX,
+                    ey = evt.changedTouches[0].pageY;
 
-            trgt = undefined;
-            if (Math.abs(ex - sx) > 4 || Math.abs(ey - sy) > 4) {
-                evt.preventDefault();
-                return;
-            }
-            listener(evt);
-            trgt = evt.target;
-        }, true);
-        document.addEventListener('touchcancel', function () {
-            trgt = undefined;
-        }, true);
-        document.addEventListener('click', function (evt) {
-            if (evt.target !== trgt) {
-                evt.preventDefault();
-            }
-            trgt = undefined;
-        }, true);
+                trgt = undefined;
+                if (Math.abs(ex - sx) > 4 || Math.abs(ey - sy) > 4) {
+                    evt.preventDefault();
+                    return;
+                }
+                listener(evt);
+                trgt = evt.target;
+            }, true);
+            document.addEventListener('touchcancel', function () {
+                trgt = undefined;
+            }, true);
+            document.addEventListener('click', function (evt) {
+                if (evt.target !== trgt) {
+                    evt.preventDefault();
+                }
+                trgt = undefined;
+            }, true);
+        }
     } else {
         document.addEventListener('click', listener, true);
     }
@@ -193,9 +208,12 @@
     silktouch.touchable = (function () {
         return 'ontouchstart' in global;
     }());
+    silktouch.manipulatable = (function () {
+        return 'touch-action' in document.documentElement.style;
+    }());
 
     silktouch.sim = (function () {
-        if (silktouch.touchable) {
+        if (silktouch.touchable && !silktouch.manipulatable) {
             return function (element) {
                 var touchstart = document.createEvent('Event');
                 touchstart.initEvent('touchstart', true, true);
