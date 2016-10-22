@@ -1,6 +1,6 @@
 {
   "name": "silktouch",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A small library for handling touch event in mobile web apps",
   "main": "silktouch.js",
   "moduleType": [
