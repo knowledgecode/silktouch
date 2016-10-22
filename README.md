@@ -4,13 +4,27 @@
 SilkTouch is a small library for handling `touch` event in mobile web apps.
 
 ## WHY
-As you may know, in mobile browser, Android Browser or iOS Safari, `click` event is fired with 300ms delay. Since it often frustrates users, the apps should respond quickly to their tap operations.
+In mobile browser, mainly Android Browser and iOS Safari, `click` event had a 300-350ms delay. Since the delay frustrated users, we've had to handle it so as to react quickly to their tap operations. The good news is that in recent versions of those browsers it has been removed. But, we still have to handle it for a while to support older browsers.
+
+## How It Works
+It appends the following viewport meta tag to a current page if not specified.
+```html
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+```
+If you want to enable `user-scalable`, specify the viewport in advance.  
+
+It also appends the following css if supported. If not, it will remove the delay with own method.
+```css
+html {
+    touch-action: manipulation;
+}
+```
+The above are not applied to desktop browser. In any case, you can handle `touch` event through the same interface.
 
 ## Features
-- Easy to use
-- Small (~1kb, minified and gzipped)
+- Small (approximately 1 kb, minifying and gzipping)
 - No Dependency
-- In desktop browser it also works. (Do not require awareness of difference between mobile and desktop.)
+- In desktop browser it also works
 
 ## Installation
 *via npm:*
