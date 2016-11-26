@@ -55,52 +55,64 @@
         }
     };
 
-    var style, meta, sx, sy, trgt;
+    /**
+     * enchant
+     * @param {Object} [baseElement] - A base element that manages a touch or a click event. Omitting it is equivalent to specify the `document`.
+     * @returns {void}
+     */
+    silktouch.enchant = function (baseElement) {
+        var style, meta, sx, sy, trgt;
 
-    if ('ontouchstart' in global) {
-        if (!document.querySelector('meta[name="viewport"]')) {
-            meta = document.createElement('meta');
-            meta.name = 'viewport';
-            meta.content = 'width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1';
-            document.head.appendChild(meta);
-        }
-        style = document.documentElement.style;
-        if ('touch-action' in style) {
-            style.touchAction = 'manipulation';
-            document.addEventListener('click', listener, true);
+        // This method is able to be called only once.
+        silktouch.enchant = function () {};
+        baseElement = baseElement || document;
+
+        if ('ontouchstart' in global) {
+            if (!document.querySelector('meta[name="viewport"]')) {
+                meta = document.createElement('meta');
+                meta.name = 'viewport';
+                // In iOS 10, `user-scalable=no` is ignored.
+                meta.content = 'width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1';
+                document.head.appendChild(meta);
+            }
+            style = document.documentElement.style;
+            if ('touch-action' in style) {
+                style.touchAction = 'manipulation';
+                baseElement.addEventListener('click', listener, true);
+            } else {
+                baseElement.addEventListener('touchstart', function (evt) {
+                    sx = evt.changedTouches[0].pageX;
+                    sy = evt.changedTouches[0].pageY;
+                }, {
+                    capture: true,
+                    passive: true
+                });
+                baseElement.addEventListener('touchend', function (evt) {
+                    var ex = evt.changedTouches[0].pageX,
+                        ey = evt.changedTouches[0].pageY;
+
+                    trgt = undefined;
+                    if (Math.abs(ex - sx) > 4 || Math.abs(ey - sy) > 4) {
+                        evt.preventDefault();
+                        return;
+                    }
+                    listener(evt);
+                    trgt = evt.target;
+                }, true);
+                baseElement.addEventListener('touchcancel', function () {
+                    trgt = undefined;
+                }, true);
+                baseElement.addEventListener('click', function (evt) {
+                    if (evt.target !== trgt) {
+                        evt.preventDefault();
+                    }
+                    trgt = undefined;
+                }, true);
+            }
         } else {
-            document.addEventListener('touchstart', function (evt) {
-                sx = evt.changedTouches[0].pageX;
-                sy = evt.changedTouches[0].pageY;
-            }, {
-                capture: true,
-                passive: true
-            });
-            document.addEventListener('touchend', function (evt) {
-                var ex = evt.changedTouches[0].pageX,
-                    ey = evt.changedTouches[0].pageY;
-
-                trgt = undefined;
-                if (Math.abs(ex - sx) > 4 || Math.abs(ey - sy) > 4) {
-                    evt.preventDefault();
-                    return;
-                }
-                listener(evt);
-                trgt = evt.target;
-            }, true);
-            document.addEventListener('touchcancel', function () {
-                trgt = undefined;
-            }, true);
-            document.addEventListener('click', function (evt) {
-                if (evt.target !== trgt) {
-                    evt.preventDefault();
-                }
-                trgt = undefined;
-            }, true);
+            baseElement.addEventListener('click', listener, true);
         }
-    } else {
-        document.addEventListener('click', listener, true);
-    }
+    };
 
     /**
      * on
