@@ -1,10 +1,10 @@
 {
   "name": "silktouch",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A small library for handling touch event in mobile web apps",
   "main": "silktouch.js",
   "scripts": {
-    "compile": "compile silktouch.js silktouch.min.js",
+    "compile": "./compile silktouch.js silktouch.min.js",
     "build": "node build silktouch.dev.js > silktouch.js",
     "test": "mocha test/test.js && mocha-phantomjs test/test.html"
   },
@@ -29,8 +29,9 @@
   "homepage": "https://github.com/knowledgecode/silktouch",
   "devDependencies": {
     "expect.js": "^0.3.1",
-    "jsdom": "^9.8.0",
+    "jsdom": "^9.8.3",
     "mocha": "^2.5.3",
-    "mocha-phantomjs": "^4.1.0"
+    "mocha-phantomjs": "^4.1.0",
+    "phantomjs": "1.9.7-15"
   }
 }
