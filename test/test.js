@@ -26,6 +26,7 @@
                     expect = window.expect;
                     doc = window.document;
                     silktouch = window.silktouch;
+                    silktouch.enchant();
                     return done();
                 });
             } catch (e) {
@@ -33,6 +34,7 @@
                 expect = global.expect;
                 doc = global.document;
                 silktouch = global.silktouch;
+                silktouch.enchant();
                 done();
             }
         });

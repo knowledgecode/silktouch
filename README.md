@@ -4,22 +4,24 @@
 SilkTouch is a small library for handling `touch` event in mobile web apps.
 
 ## WHY
-In mobile browser, mainly Android Browser and iOS Safari, `click` event had a 300-350ms delay. Since the delay frustrated users, we've had to handle it so as to react quickly to their tap operations. The good news is that in recent versions of those browsers it has been removed. But, we still have to handle it for a while to support older browsers.
+In mobile browser, mainly Android Browser and iOS Safari, `click` event had a 300-350ms delay. Since the delay irritates users, we've had to handle it so as to react quickly to their tap operations. The good news is that in recent versions of those browsers it has been removed. However, we have to continue to handle it for a while to support older browsers.
 
-## How It Works
-It appends the following viewport meta tag to a current page if not specified.
+## How Does It Work
+This library will append the following viewport meta tag to a current page if not specified there.
 ```html
-<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1">
 ```
-If you want to enable `user-scalable`, specify the viewport in advance.  
+If want to enable `user-scalable`, specify the viewport in advance. By the way, in iOS 10, the `user-scalable=no` is ignored. Take note if plan to support this version.  
 
-It also appends the following css if supported. If not, it will remove the delay with own method.
+It will also append the following css if the browser supports it.
 ```css
 html {
     touch-action: manipulation;
 }
 ```
-The above are not applied to desktop browser. In any case, you can handle `touch` event through the same interface.
+In this way, in recent browsers the delay is able to be removed. In older browsers, this library will remove it with own method (using a `touchend` event).  
+
+All the above are not applied to desktop browser. In any case, can handle `touch` event through the same interface.
 
 ## Features
 - Small (approximately 1 kb, minifying and gzipping)
@@ -42,33 +44,49 @@ $ bower install silktouch
 <script src="/path/to/silktouch.min.js"></script>
 ```
 
-## Usage
-*CommonJS:*
-```javascript
-var silktouch = require('silktouch');
-
-silktouch.on('green', '#block', function () {
-    console.log('Creeper!');
-});
+## Basic Usage
+```html
+<body>
+  <div class="container">
+    <div id="block">SSS...</div>
+  </div>
+</body>
 ```
-
-*AMD:*
 ```javascript
-require(['path/to/silktouch'], function (silktouch) {
+document.addEventListener('DOMContentLoaded', function () {
+    // Initializing only once.
+    silktouch.enchant(document.querySelector('.container'));
+
+    // Register a new touch event.
     silktouch.on('green', '#block', function () {
         console.log('Creeper!');
     });
-});
-```
-
-*directly:*
-```javascript
-silktouch.on('green', '#block', function () {
-    console.log('Creeper!');
-});
+}, false);
 ```
 
 ## API
+### *enchant([baseElement])*
+- {Object} **[baseElement]** - A base element that manages a touch or a click event. Omitting it is equivalent to specify the `document`.
+
+The `enchant` method initializes the `SilkTouch` object. This method must be called only once at the beginning. The `baseElement` will listen to all `touch` or `click` events for itsself and the descendant elements, and then dispatch them.
+
+```javascript
+silktouch.enchant();    // equivalent to `silktouch.enchant(document)`
+```
+
+#### NOTE
+At least in iOS Safari, `touch` or `click` event usually will NOT be fired on the `document`. Thus, if your app supports iOS, the `baseElement` must be something other than it. The example is as follows:
+```html
+<body>
+  <div class="container">
+
+  </div>
+</body>
+```
+```javascript
+silktouch.enchant(document.querySelector('.container'));
+```
+
 ### *on(name, selector, handler)*
 - {string} **name** - A unique event name
 - {string} **selector** - A selector you want to match.
@@ -174,8 +192,8 @@ silktouch.on('absorbing', '.bubble', function (evt) {
 })
 ```
 
-## Supprted browser
-Android Browser 4+, Chrome, Firefox, Safari, Opera, Edge and IE9+
+## Browser Support
+Android Browser 4+, Chrome, Firefox, Safari, Edge and IE9+
 
 ## License
 MIT
